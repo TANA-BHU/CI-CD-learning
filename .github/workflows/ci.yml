@@ -81,3 +81,52 @@ jobs:
         run: |
           docker push \
             ghcr.io/tana-bhu/fast-api-demo:latest
+
+  deploy:
+    needs:
+      - docker
+
+    runs-on: self-hosted
+
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull Docker image
+        run: |
+          docker pull ghcr.io/tana-bhu/fast-api-demo:latest
+
+      - name: Stop old container
+        run: |
+          docker rm -f fast-api-prod || true
+
+      - name: Start new container
+        run: |
+          docker run -d \
+            --name fast-api-prod \
+            --restart unless-stopped \
+            -p 8000:8000 \
+            ghcr.io/tana-bhu/fast-api-demo:latest
+
+      - name: Health check
+        run: |
+          for i in {1..10}; do
+            if curl --fail http://localhost:8000/health; then
+              exit 0
+            fi
+
+            echo "Waiting for application..."
+            sleep 2
+          done
+
+          echo "Health check failed"
+          docker logs fast-api-prod
+          exit 1
