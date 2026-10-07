@@ -45,3 +45,13 @@ jobs:
 
       - name: Run tests
         run: python -m pytest
+
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t fast-api-demo:ci .
