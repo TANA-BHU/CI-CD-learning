@@ -74,10 +74,10 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            -t ghcr.io/${{ github.repository_owner }}/fast-api-demo:latest \
+            -t ghcr.io/tana-bhu/fast-api-demo:latest \
             .
 
       - name: Push Docker image
         run: |
           docker push \
-            ghcr.io/${{ github.repository_owner }}/fast-api-demo:latest
+            ghcr.io/tana-bhu/fast-api-demo:latest
